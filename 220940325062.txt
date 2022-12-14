@@ -1,0 +1,149 @@
+
+Q1.
+-->
+
+package practice;
+import java.io.*;
+import org.apache.hadoop.io.Longwritable;
+import org.apache.hadoop.io.DoubleWritable;
+import org.apache.hadoop.mapReduce.Job;
+import org.apache.hadoop.mapreduce.mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.conf.*;
+import org.apache.hadoop.fs.*;
+import org.apache.hadoop.mapreduce.lib.input.*;
+import org.apache.hadoop.mapreduce.lib.output.*;
+
+public class AllTimeHigh {
+
+	public static class Mapclass extends
+Mapper<Longwritable,text,Text,DoubleWritable>
+	{
+		private text stock_id = new Text();
+		private DoubleWritable high = new Doublewritable();
+	
+		public void map(LongWritable key, Text value, Context context)
+			{
+				
+				try{
+				    string[] str = value.tostring().split(",");
+				    double high = Double.parseDouble(str[4]);
+				    stock_id.set(str[1]);
+				    High.set(high);
+
+				    context.write(stock_id,High);
+				}
+				catch(Exception e)
+				{
+					System.out.println(e.getmessage());
+				}
+			}
+	}
+
+	public static class Reduceclass extends
+Reducer<Text,DoubleWritable,Text,DoubleWritable>
+	{
+		private DoubleWritable result = new DoubleWritable();
+
+		public void reduce(Text key, Iterable<DoubleWritable>, values,Context context
+		throws IoEXception, InterruptedException {
+		double maxvalue=0;
+		double temp_val=0;
+
+		for (DoubleWritable value : values) {
+			temp_val = value.get();
+			if (temp_val = value.get();
+				maxvalue = temp_val;
+			}
+	}
+	result.set.(maxvalue);
+	context.write(key, result);
+	}
+	}
+
+	public static void main(String[] args) throws Exception {
+		Configuration conf = new Configuration();
+
+		Job job = Job.getInstance(conf, "Highest Price for each stock")
+
+		job.setJarByClass(AllTimeHigh.class);
+		job.setMapper.Class(MapClass.class);
+		
+		job.setReducerClass(ReduceClass.class);
+		job.setNumReduceTasks(1);
+		job.setoutputKeyClass(Text.class);
+		job.setoutputValueClass(DoubleWritable.class);
+
+		FileInputFormat.addInputPath(job, new Path(args[0]));
+		FileOutputFormat.setOutputPath(job, new Path(args[1]));
+
+		System.exit(job.waitForCompletion(true) ? 0 : 1);
+		}
+}	
+		
+Commands - 
+hadoop fs -put NYSE.csv
+Hadoop jar myjar Alltimehigh /user/bigcdac432531/NYSE.csv /user/bigcdac432531/out2
+
+
+Q2.
+
+1) Write a program to find the count of customers for each profession.
+-->
+
+use srb123; 
+create table cust2(cust_id bigint, firstname string, lastname string, age int , profession string) row format delimited fields terminated
+by ',' stored as textfile;
+load data local inpath 'custs.txt' into table cust2;      
+select profession,count(profession) from cust2 group by profession;
+		
+2) Write a program to find the top 10 products sales wise
+
+create table txn2(txn_id bigint, txn_date String , cust_id bigint, amount bigint, category string, product string, city string, state str
+ing, spendby string) row format delimited fields terminated by ',' stored as textfile; 
+load data local inpath 'txns1.txt' into table txn2;      
+select product, sum(amount) as High from txn2 group by product order by High desc limit 10;
+
+3) Write a program to create partiioned table on category 
+
+
+hive> set hive.exec.dynamic.partition.mode = nonstrict;                                                                                       
+hive> set hive.exec.dynamic.partition = true;                                                                                                 
+hive> create table txn3 (txn_id bigint, txn_date string, cust_id bigint, amount double, product string, city string, state string, spendby stri
+ng) partitioned by (category string) row format delimited fields terminated by ',' stored as textfile;                                        
+insert into txn3 partition(category) select a.txn_id,a.txn_date,a.cust_id,a.amount,a.product,a.city,a.state,a.spendby,a.category from txn
+2 a distribute by category;
+
+
+Q3.
+
+1) What was the highest number of people travelled in which 
+year? 
+airRDD= sc.textFile("hdfs://nameservice1/user/bigcdac432531/airlines.csv")                                                                
+>>> airRDD3 = airRDD.map(lambda a: a.split(","))                                                                                              
+>>> for i in airRDD3.atke(5):                                                                                                                 
+...     print(i)                                                                                                                              
+...                                                                                                                                           
+Traceback (most recent call last):                                                                                                            
+ File "<stdin>", line 1, in <module>                                                                                                         
+AttributeError: 'PipelinedRDD' object has no attribute 'atke'                                                                                 
+>>> for i in airRDD3.take(5):                                                                                                                 
+...     print(i)                                                                                                                              
+...                                                                                                                                           
+['Year', 'Quarter', 'Average revenue per seat', 'total no. of booked seats']
+['1995', '1', '296.9', '46561']                                                                                                               
+['1995', '2', '296.8', '37443']                                                                                                               
+['1995', '3', '287.51', '34128']                                                                                                              
+['1995', '4', '287.78', '30388']                                                                                                              
+>>> header = airRDD1.first()                                                                                                                  
+>>> header = airRDD3.first()                                                                                                                  
+>>> airRDD2=airRDD3.filter(lambda a : a!=header)                                                                                              
+>>> key = airRDD2.map(lambda a : (a[0],int(a[3])))                                                                                            
+>>> sum = key.reduceByKey(lambda a,b : a+b)                                                                                                   
+>>> total = sum.sortBy(lambda a: -a[1])                                                                                                       
+>>> total.first()
+('2007', 176299)                                                                                                                              
+>>> {          
+
+
+
